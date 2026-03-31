@@ -22,9 +22,11 @@ const storage = multer.diskStorage({
 
 // File filter to allow only certain types (e.g., videos and images)
 const fileFilter = (req, file, cb) => {
-  const allowedTypes = /jpeg|jpg|png|mp4|avi|mkv|mov/;
-  const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
-  const mimetype = allowedTypes.test(file.mimetype);
+  const allowedMimes = ['image/jpeg', 'image/jpg', 'image/png', 'video/mp4', 'video/avi', 'video/mkv', 'video/mov'];
+  const allowedExts = ['.jpeg', '.jpg', '.png', '.mp4', '.avi', '.mkv', '.mov'];
+
+  const extname = allowedExts.includes(path.extname(file.originalname).toLowerCase());
+  const mimetype = allowedMimes.includes(file.mimetype);
 
   if (mimetype && extname) {
     return cb(null, true);
@@ -40,10 +42,10 @@ const upload = multer({
   fileFilter: fileFilter
 });
 
-// Export for multiple files (e.g., video and thumbnail)
+// Export for multiple files (e.g., avatar and coverimage)
 export const uploadFiles = upload.fields([
-  { name: 'videoFile', maxCount: 1 },
-  { name: 'thumbnail', maxCount: 1 }
+  { name: 'avatar', maxCount: 1 },
+  { name: 'coverimage', maxCount: 1 }
 ]);
 
 // For single file if needed

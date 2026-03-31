@@ -1,0 +1,168 @@
+{
+    "info": {
+        "_postman_id": "12345678-1234-1234-1234-123456789012",
+        "name": "Registration APIs",
+        "description": "PlayYouTube Registration API Collection",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+        {
+            "name": "Register User",
+            "request": {
+                "method": "POST",
+                "header": [],
+                "body": {
+                    "mode": "formdata",
+                    "formdata": [
+                        {
+                            "key": "username",
+                            "value": "testuser123",
+                            "type": "text",
+                            "description": "Unique username for the account"
+                        },
+                        {
+                            "key": "email",
+                            "value": "testuser@example.com",
+                            "type": "text",
+                            "description": "Valid email address"
+                        },
+                        {
+                            "key": "fullname",
+                            "value": "Test User",
+                            "type": "text",
+                            "description": "Full name of the user"
+                        },
+                        {
+                            "key": "password",
+                            "value": "password123",
+                            "type": "text",
+                            "description": "Password for the account"
+                        },
+                        {
+                            "key": "avatar",
+                            "type": "file",
+                            "description": "Profile picture/avatar image (required)"
+                        },
+                        {
+                            "key": "coverimage",
+                            "type": "file",
+                            "description": "Cover image for profile (required)"
+                        }
+                    ]
+                },
+                "url": {
+                    "raw": "http://localhost:3000/api/user/register",
+                    "protocol": "http",
+                    "host": [
+                        "localhost"
+                    ],
+                    "port": "3000",
+                    "path": [
+                        "api",
+                        "user",
+                        "register"
+                    ]
+                },
+                "description": "Register a new user with avatar and cover image"
+            },
+            "response": [
+                {
+                    "name": "Success Response",
+                    "originalRequest": {
+                        "method": "POST",
+                        "header": [],
+                        "body": {
+                            "mode": "formdata",
+                            "formdata": []
+                        },
+                        "url": {
+                            "raw": "http://localhost:3000/api/user/register",
+                            "protocol": "http",
+                            "host": [
+                                "localhost"
+                            ],
+                            "port": "3000",
+                            "path": [
+                                "api",
+                                "user",
+                                "register"
+                            ]
+                        }
+                    },
+                    "status": "Created",
+                    "code": 201,
+                    "header": [],
+                    "body": "{\n  \"message\": \"User registered successfully\",\n  \"user\": {\n    \"_id\": \"507f1f77bcf86cd799439011\",\n    \"username\": \"testuser123\",\n    \"email\": \"testuser@example.com\",\n    \"fullname\": \"Test User\",\n    \"avatar\": \"https://res.cloudinary.com/...\",\n    \"coverimage\": \"https://res.cloudinary.com/...\",\n    \"createdAt\": \"2026-03-30T10:00:00.000Z\",\n    \"updatedAt\": \"2026-03-30T10:00:00.000Z\"\n  }\n}"
+                },
+                {
+                    "name": "Error - Missing Fields",
+                    "originalRequest": {
+                        "method": "POST",
+                        "header": [],
+                        "body": {
+                            "mode": "formdata",
+                            "formdata": []
+                        },
+                        "url": {
+                            "raw": "http://localhost:3000/api/user/register",
+                            "protocol": "http",
+                            "host": [
+                                "localhost"
+                            ],
+                            "port": "3000",
+                            "path": [
+                                "api",
+                                "user",
+                                "register"
+                            ]
+                        }
+                    },
+                    "status": "Bad Request",
+                    "code": 400,
+                    "header": [],
+                    "body": "{\n  \"message\": \"All fields are required\"\n}"
+                },
+                {
+                    "name": "Error - User Already Exists",
+                    "originalRequest": {
+                        "method": "POST",
+                        "header": [],
+                        "body": {
+                            "mode": "formdata",
+                            "formdata": []
+                        },
+                        "url": {
+                            "raw": "http://localhost:3000/api/user/register",
+                            "protocol": "http",
+                            "host": [
+                                "localhost"
+                            ],
+                            "port": "3000",
+                            "path": [
+                                "api",
+                                "user",
+                                "register"
+                            ]
+                        }
+                    },
+                    "status": "Bad Request",
+                    "code": 400,
+                    "header": [],
+                    "body": "{\n  \"message\": \"Username or email already exists\"\n}"
+                }
+            ]
+        }
+    ],
+    "variable": [
+        {
+            "key": "base_url",
+            "value": "http://localhost:3000",
+            "type": "string"
+        },
+        {
+            "key": "api_version",
+            "value": "v1",
+            "type": "string"
+        }
+    ]
+}
