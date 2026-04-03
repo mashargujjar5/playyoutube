@@ -58,6 +58,9 @@ const updateproductbyid=async(req,res)=>{
         const { title, description, price } = req.body;
         const image = req.file ? req.file.path : undefined;
         const product = await updateProductService(id, title, description, price, image);
+        if (!product) {
+            return res.status(404).json({ message: 'Product not found' });
+        }
         res.status(200).json(product);
     } catch (error) {
         res.status(500).json({ message: error.message });

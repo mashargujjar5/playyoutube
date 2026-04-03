@@ -39,13 +39,17 @@ const deleteProductService = async (id) => {
     }
 }
 const updateProductService = async (id, title, description, price, imagePath) => {
-    const imageUrl = await uploader(imagePath);
-    const product = await Product.findByIdAndUpdate(id, {
-        title,
-        description,
-        price,
-        image: imageUrl.url
-    }, { new: true });
+    let updateData = {};
+    if (title !== undefined) updateData.title = title;
+    if (description !== undefined) updateData.description = description;
+    if (price !== undefined) updateData.price = price;
+    if (imagePath) {
+        const imageUrl = await uploader(imagePath);
+        if (imageUrl) {
+            updateData.image = imageUrl.url;
+        }
+    }
+    const product = await Product.findByIdAndUpdate(id, updateData, { new: true });
     console.log("Product updated:", product);
     return product;
 };

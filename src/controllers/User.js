@@ -1,5 +1,6 @@
 import { registerUserService, loginUserService } from '../service/userService.js';
 import User from '../models/user.model.js';
+import jwt from 'jsonwebtoken';
 
 const Registeruser = async (req, res) => {
     try {
@@ -46,7 +47,6 @@ const Registeruser = async (req, res) => {
 // if password is incorrect return 401
 // if password is correct return user data without password and refreshtoken
 const Loginuser = async (req, res) => {
-const Loginuser = async (req, res) => {
     try {
         const { email, password } = req.body;
         if (!email || !password) {
@@ -59,9 +59,15 @@ const Loginuser = async (req, res) => {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
             sameSite: 'Strict',
+            maxAge: 10 * 60 * 1000 // 10 minutes for access token
         };
-        res.cookie('refreshToken', refreshToken, cookieOptions)
-            .cookie('accessToken', accessToken, cookieOptions);
+        res.cookie('refreshToken', refreshToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'Strict',
+            maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days for refresh token
+        })
+        .cookie('accessToken', accessToken, cookieOptions);
 
         return res.status(200).json({ message: "User logged in successfully", accessToken, user });
 
@@ -70,6 +76,53 @@ const Loginuser = async (req, res) => {
         return res.status(401).json({ message: error.message || "Invalid username or password" });
     }
 };
-}
 
-export { Registeruser, Loginuser };
+// Refresh token endpoint
+const refreshAccessToken = async (req, res) => {
+    try {
+        const refreshToken = req.cookies?.refreshToken;
+
+        if (!refreshToken) {
+            return res.status(401).json({ message: "Refresh token not found" });
+        }
+
+        const decoded = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
+        const user = await User.findById(decoded.id);
+
+        if (!user || user.refreshtoken !== refreshToken) {
+            return res.status(401).json({ message: "Invalid refresh token" });
+        }
+
+        const newAccessToken = user.generateAccesstoken();
+
+        const cookieOptions = {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'Strict',
+            maxAge: 10 * 60 * 1000 // 10 minutes
+        };
+
+        res.cookie('accessToken', newAccessToken, cookieOptions);
+        return res.status(200).json({ message: "Token refreshed successfully", accessToken: newAccessToken });
+
+    } catch (error) {
+        console.error("Error refreshing token:", error);
+        return res.status(401).json({ message: "Token refresh failed: " + error.message });
+    }
+};
+
+// Logout endpoint
+const Logoutuser = async (req, res) => {
+    try {
+        // Clear cookies
+        res.clearCookie('accessToken');
+        res.clearCookie('refreshToken');
+        
+        return res.status(200).json({ message: "User logged out successfully" });
+    } catch (error) {
+        console.error("Error logging out:", error);
+        return res.status(500).json({ message: "Logout failed: " + error.message });
+    }
+};
+
+export { Registeruser, Loginuser, refreshAccessToken, Logoutuser };
