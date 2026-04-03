@@ -48,8 +48,8 @@ export const uploadFiles = upload.fields([
   { name: 'coverimage', maxCount: 1 }
 ]);
 
-// For single file if needed
-export const uploadSingle = upload.single('file');
+// Export for single file upload (e.g., product image)
+export const uploadSingle = upload.single('image');
 
 // For multiple files of same type
 export const uploadArray = upload.array('files', 10); // Up to 10 files

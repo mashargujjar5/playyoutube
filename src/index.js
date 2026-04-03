@@ -3,8 +3,9 @@ import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import dotenv from "dotenv";
 dotenv.config();
-import connectDB from "./db/Dbconfig.js";
+import connectDB from "../config/Dbconfig.js";
 import router from "./routes/Userroutes.js";
+import productRoutes from "./routes/product.js";
 
 
 const app = express();
@@ -18,6 +19,7 @@ app.use( cookieParser())
 
 //routes
 app.use("/api/user", router);
+app.use("/api", productRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
