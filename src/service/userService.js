@@ -47,4 +47,34 @@ const loginUserService = async (email, password) => {
     return { accessToken, refreshToken, user: usersafe };
 };
 
-export { registerUserService, loginUserService };
+const updateUserService = async (userId, updateData) => {
+    const user = await User.findById(userId);
+    if (!user) {
+        throw new Error("User not found");
+    }
+
+    // Handle avatar upload if provided
+    if (updateData.avatarPath) {
+        const avatar = await uploader(updateData.avatarPath);
+        if (!avatar) {
+            throw new Error("Error uploading avatar");
+        }
+        updateData.avatar = avatar.url;
+        delete updateData.avatarPath;
+    }
+
+    // Handle cover image upload if provided
+    if (updateData.coverImagePath) {
+        const coverimage = await uploader(updateData.coverImagePath);
+        if (!coverimage) {
+            throw new Error("Error uploading cover image");
+        }
+        updateData.coverimage = coverimage.url;
+        delete updateData.coverImagePath;
+    }
+
+    const updatedUser = await User.findByIdAndUpdate(userId, updateData, { new: true }).select("-password -refreshtoken");
+    return updatedUser;
+};
+
+export { registerUserService, loginUserService, updateUserService };

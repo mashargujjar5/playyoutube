@@ -1,0 +1,393 @@
+{
+  "info": {
+    "_postman_id": "meeting-api-collection-v1",
+    "name": "🎥 Video Conferencing API",
+    "description": "Complete API collection for Video Conferencing App — User Auth + Meeting Room APIs",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "BASE_URL", "value": "http://localhost:5000", "type": "string" },
+    { "key": "ACCESS_TOKEN", "value": "", "type": "string" },
+    { "key": "REFRESH_TOKEN", "value": "", "type": "string" },
+    { "key": "MEETING_ID", "value": "", "type": "string" },
+    { "key": "PARTICIPANT_ID", "value": "", "type": "string" }
+  ],
+  "item": [
+    {
+      "name": "🔐 Auth — User",
+      "item": [
+        {
+          "name": "Register User",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "username", "value": "john_doe", "type": "text" },
+                { "key": "email", "value": "john@example.com", "type": "text" },
+                { "key": "fullname", "value": "John Doe", "type": "text" },
+                { "key": "password", "value": "password123", "type": "text" },
+                { "key": "avatar", "src": [], "type": "file", "description": "Profile image (required)" },
+                { "key": "coverimage", "src": [], "type": "file", "description": "Cover image (required)" }
+              ]
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/api/user/register",
+              "host": ["{{BASE_URL}}"],
+              "path": ["api", "user", "register"]
+            },
+            "description": "Register a new user. Requires avatar and coverimage files."
+          },
+          "response": []
+        },
+        {
+          "name": "Login User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.accessToken) {",
+                  "  pm.collectionVariables.set('ACCESS_TOKEN', res.accessToken);",
+                  "  pm.collectionVariables.set('REFRESH_TOKEN', res.refreshToken);",
+                  "  console.log('✅ Tokens saved!');",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"john@example.com\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/api/user/login",
+              "host": ["{{BASE_URL}}"],
+              "path": ["api", "user", "login"]
+            },
+            "description": "Login user. Auto-saves accessToken & refreshToken to collection variables."
+          },
+          "response": []
+        },
+        {
+          "name": "Refresh Access Token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.accessToken) {",
+                  "  pm.collectionVariables.set('ACCESS_TOKEN', res.accessToken);",
+                  "  console.log('✅ New access token saved!');",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"{{REFRESH_TOKEN}}\"\n}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/api/user/refresh-token",
+              "host": ["{{BASE_URL}}"],
+              "path": ["api", "user", "refresh-token"]
+            },
+            "description": "Get a new access token using refresh token."
+          },
+          "response": []
+        },
+        {
+          "name": "Logout User",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{ACCESS_TOKEN}}" }],
+            "url": {
+              "raw": "{{BASE_URL}}/api/user/logout",
+              "host": ["{{BASE_URL}}"],
+              "path": ["api", "user", "logout"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get My Profile",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{ACCESS_TOKEN}}" }],
+            "url": {
+              "raw": "{{BASE_URL}}/api/user/profile",
+              "host": ["{{BASE_URL}}"],
+              "path": ["api", "user", "profile"]
+            },
+            "description": "Get currently logged-in user's profile."
+          },
+          "response": []
+        },
+        {
+          "name": "Update Profile",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Authorization", "value": "Bearer {{ACCESS_TOKEN}}" }],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "fullname", "value": "John Updated", "type": "text" },
+                { "key": "avatar", "src": [], "type": "file", "description": "Optional new avatar" },
+                { "key": "coverimage", "src": [], "type": "file", "description": "Optional new cover image" }
+              ]
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/api/user/profile",
+              "host": ["{{BASE_URL}}"],
+              "path": ["api", "user", "profile"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Change Password",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{ACCESS_TOKEN}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"oldPassword\": \"password123\",\n  \"newPassword\": \"newpassword456\"\n}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/api/user/change-password",
+              "host": ["{{BASE_URL}}"],
+              "path": ["api", "user", "change-password"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "🎥 Meetings — Host",
+      "item": [
+        {
+          "name": "Create Meeting",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const res = pm.response.json();",
+                  "if (res.data && res.data.meetingId) {",
+                  "  pm.collectionVariables.set('MEETING_ID', res.data.meetingId);",
+                  "  console.log('✅ Meeting ID saved: ' + res.data.meetingId);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{ACCESS_TOKEN}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Team Standup Meeting\"\n}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/api/meetings/create",
+              "host": ["{{BASE_URL}}"],
+              "path": ["api", "meetings", "create"]
+            },
+            "description": "Create a new meeting room. Auto-saves MEETING_ID to collection variables."
+          },
+          "response": []
+        },
+        {
+          "name": "Get My Meetings",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{ACCESS_TOKEN}}" }],
+            "url": {
+              "raw": "{{BASE_URL}}/api/meetings/my-meetings?page=1&limit=10",
+              "host": ["{{BASE_URL}}"],
+              "path": ["api", "meetings", "my-meetings"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "10" },
+                { "key": "status", "value": "active", "disabled": true, "description": "Filter: waiting | active | ended" }
+              ]
+            },
+            "description": "Get all meetings created by the logged-in host."
+          },
+          "response": []
+        },
+        {
+          "name": "End Meeting",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{ACCESS_TOKEN}}" }],
+            "url": {
+              "raw": "{{BASE_URL}}/api/meetings/{{MEETING_ID}}/end",
+              "host": ["{{BASE_URL}}"],
+              "path": ["api", "meetings", "{{MEETING_ID}}", "end"]
+            },
+            "description": "Host ends the meeting. Only the host can do this."
+          },
+          "response": []
+        },
+        {
+          "name": "Mute Participant (Host)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{ACCESS_TOKEN}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"isMuted\": true\n}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/api/meetings/{{MEETING_ID}}/participants/{{PARTICIPANT_ID}}/mute",
+              "host": ["{{BASE_URL}}"],
+              "path": ["api", "meetings", "{{MEETING_ID}}", "participants", "{{PARTICIPANT_ID}}", "mute"]
+            },
+            "description": "Host mutes or unmutes a specific participant. Set isMuted: false to unmute."
+          },
+          "response": []
+        },
+        {
+          "name": "Remove Participant (Host)",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{ACCESS_TOKEN}}" }],
+            "url": {
+              "raw": "{{BASE_URL}}/api/meetings/{{MEETING_ID}}/participants/{{PARTICIPANT_ID}}",
+              "host": ["{{BASE_URL}}"],
+              "path": ["api", "meetings", "{{MEETING_ID}}", "participants", "{{PARTICIPANT_ID}}"]
+            },
+            "description": "Host removes a participant from the meeting."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "🏠 Meetings — Public",
+      "item": [
+        {
+          "name": "Get Meeting Info",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/api/meetings/{{MEETING_ID}}/info",
+              "host": ["{{BASE_URL}}"],
+              "path": ["api", "meetings", "{{MEETING_ID}}", "info"]
+            },
+            "description": "Get meeting details — no auth needed. Use before joining."
+          },
+          "response": []
+        },
+        {
+          "name": "Join Meeting (Validate)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Guest User\"\n}"
+            },
+            "url": {
+              "raw": "{{BASE_URL}}/api/meetings/{{MEETING_ID}}/join",
+              "host": ["{{BASE_URL}}"],
+              "path": ["api", "meetings", "{{MEETING_ID}}", "join"]
+            },
+            "description": "Validate that a user can join the meeting. No auth needed — just supply a display name."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Participants",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{ACCESS_TOKEN}}" }],
+            "url": {
+              "raw": "{{BASE_URL}}/api/meetings/{{MEETING_ID}}/participants",
+              "host": ["{{BASE_URL}}"],
+              "path": ["api", "meetings", "{{MEETING_ID}}", "participants"]
+            },
+            "description": "Get list of all participants in a meeting."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Chat History",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{ACCESS_TOKEN}}" }],
+            "url": {
+              "raw": "{{BASE_URL}}/api/meetings/{{MEETING_ID}}/chat?page=1&limit=50",
+              "host": ["{{BASE_URL}}"],
+              "path": ["api", "meetings", "{{MEETING_ID}}", "chat"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "50" }
+              ]
+            },
+            "description": "Get paginated chat messages from a meeting."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "🔌 Socket.IO Events (Reference)",
+      "item": [
+        {
+          "name": "📋 Socket Events Documentation",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/health",
+              "host": ["{{BASE_URL}}"],
+              "path": ["health"]
+            },
+            "description": "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n🔌 SOCKET.IO EVENTS (use socket.io client)\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n📤 EMIT (Client → Server):\n─────────────────────────\njoin-room        → { meetingId, name, userId?, isHost? }\noffer            → { targetSocketId, offer, meetingId }\nanswer           → { targetSocketId, answer, meetingId }\nice-candidate    → { targetSocketId, candidate }\nsend-message     → { meetingId, message, senderName, senderId? }\ntoggle-mute      → { meetingId, isMuted: true|false }\ntoggle-camera    → { meetingId, isCameraOff: true|false }\ntoggle-screen-share → { meetingId, isScreenSharing: true|false }\nhost-mute-participant → { meetingId, targetSocketId, isMuted }\nhost-remove-participant → { meetingId, targetSocketId }\nhost-end-meeting → { meetingId }\n\n📥 LISTEN (Server → Client):\n─────────────────────────────\nroom-joined           → { meetingId, participantId, participants, chatHistory, hostName, status }\nparticipant-joined    → { socketId, name, userId, isHost }\nparticipant-left      → { socketId, name }\nparticipant-removed   → { socketId }\nparticipant-muted     → { socketId, isMuted }\nparticipant-camera-toggled → { socketId, isCameraOff }\nparticipant-screen-share   → { socketId, isScreenSharing }\nnew-message           → { senderId, senderName, message, timestamp }\nmeeting-ended         → { message }\nyou-were-removed      → { reason }\nforce-muted           → { isMuted, by }\noffer                 → { offer, fromSocketId, meetingId }\nanswer                → { answer, fromSocketId, meetingId }\nice-candidate         → { candidate, fromSocketId }\nerror                 → { message }"
+          },
+          "response": []
+        },
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{BASE_URL}}/health",
+              "host": ["{{BASE_URL}}"],
+              "path": ["health"]
+            },
+            "description": "Check if server is running."
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}

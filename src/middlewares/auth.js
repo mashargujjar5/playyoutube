@@ -4,9 +4,9 @@ import User from '../models/user.model.js';
 // Middleware to verify and refresh tokens
 const verifyToken = async (req, res, next) => {
     try {
-        // Get tokens from cookies
-        const accessToken = req.cookies?.accessToken;
-        const refreshToken = req.cookies?.refreshToken;
+        // Get tokens from headers and body
+        const accessToken = req.headers['authorization']?.replace('Bearer ', '');
+        const refreshToken = req.body?.refreshToken;
 
         // If no access token, check refresh token
         if (!accessToken) {
@@ -25,14 +25,6 @@ const verifyToken = async (req, res, next) => {
 
                 // Generate new access token
                 const newAccessToken = user.generateAccesstoken();
-
-                // Set new access token in cookie
-                res.cookie('accessToken', newAccessToken, {
-                    httpOnly: true,
-                    secure: process.env.NODE_ENV === 'production',
-                    sameSite: 'Strict',
-                    maxAge: 10 * 60 * 1000 // 10 minutes
-                });
 
                 req.user = { id: decoded.id, email: decoded.email, username: decoded.username };
                 req.newAccessToken = newAccessToken;
@@ -62,14 +54,6 @@ const verifyToken = async (req, res, next) => {
 
                     // Generate new access token
                     const newAccessToken = user.generateAccesstoken();
-
-                    // Set new access token in cookie
-                    res.cookie('accessToken', newAccessToken, {
-                        httpOnly: true,
-                        secure: process.env.NODE_ENV === 'production',
-                        sameSite: 'Strict',
-                        maxAge: 10 * 60 * 1000 // 10 minutes
-                    });
 
                     req.user = { id: decoded.id, email: decoded.email, username: decoded.username };
                     req.newAccessToken = newAccessToken;
