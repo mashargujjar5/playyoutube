@@ -61,6 +61,29 @@ app.use((req, res) => {
 // ─── Global Error Handler ─────────────────────────────────────────────────────
 app.use((err, req, res, next) => {
   console.error("[Error]", err.stack);
+
+  // Handle Multer errors specifically
+  if (err.name === 'MulterError') {
+    console.error("[MulterError Details]", {
+      code: err.code,
+      field: err.field,
+      message: err.message
+    });
+
+    if (err.code === 'LIMIT_UNEXPECTED_FIELD') {
+      return res.status(400).json({
+        success: false,
+        message: `Unexpected field: "${err.field}". Please check if you are using the correct field name (e.g., 'avatar', 'coverimage', or 'image').`,
+        field: err.field
+      });
+    }
+    return res.status(400).json({
+      success: false,
+      message: `Multer Error: ${err.message}`,
+      code: err.code
+    });
+  }
+
   res.status(err.status || 500).json({
     success: false,
     message: err.message || "Internal server error",
